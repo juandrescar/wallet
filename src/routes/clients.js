@@ -44,4 +44,23 @@ router.post('/balance', [
   ClientController.getClient(req.body, res);
 });
 
+/* Recharge balance */
+router.post('/recharge', [
+  body('phone').exists(),
+  body('document').exists(),
+  body('value').exists().isFloat({min:10}).withMessage('valor de recarga es minimo 1')
+],async (req, res, next) => {
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ 
+      success: false,
+      message: "Unprocessable Entity",
+      errors: errors.array() 
+    });
+  }
+
+  ClientController.recharge(req.body, res);
+});
+
 module.exports = router;

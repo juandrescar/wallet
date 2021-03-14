@@ -35,6 +35,23 @@ class ClientController {
     res.status(200).json(this.notification(true, 'The new client has been successfully registered', client, undefined));
   }
 
+  async recharge(req, res) {
+    const client = await Client.findOne(
+      {
+        document: req.document,
+        phone: req.phone
+      },
+    ).exec();
+
+    if(client){
+      client.balance += req.value;
+      client.save();
+      res.status(200).json(this.notification(true, 'Client update', client, undefined));
+    } else {
+      res.status(404).json(this.notification(false, 'Client not found', client, undefined));
+    }
+  }
+
   notification(ifSuccess, msg, response, error) {
     return {
       success: ifSuccess,
