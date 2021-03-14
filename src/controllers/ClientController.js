@@ -10,6 +10,21 @@ class ClientController {
     res.status(200).json(this.notification(true, 'Clients list found', clientsA, undefined));
   }
 
+  async getClient(req, res) {
+    console.log(req);
+    const client = await Client.findOne(
+      {
+        document: req.document,
+        phone: req.phone
+      }
+    ).exec();
+    if(client){
+      res.status(200).json(this.notification(true, 'Client found', client, undefined));
+    } else {
+      res.status(404).json(this.notification(false, 'Client not found', client, undefined));
+    }
+  }
+
   async store(req, res) {
     const client = new Client(req);
 

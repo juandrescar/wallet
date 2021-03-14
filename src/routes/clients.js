@@ -26,4 +26,22 @@ router.post('/', [
     ClientController.store(req.body, res);
 });
 
+/* Check balance */
+router.post('/balance', [
+  body('phone').exists(),
+  body('document').exists()
+],async (req, res, next) => {
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ 
+      success: false,
+      message: "Unprocessable Entity",
+      errors: errors.array() 
+    });
+  }
+
+  ClientController.getClient(req.body, res);
+});
+
 module.exports = router;
