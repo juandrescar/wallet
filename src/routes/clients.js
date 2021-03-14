@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const ClientController = require('../controllers/ClientController');
-const { body, validationResult } = require('express-validator');
+const { check, body, validationResult } = require('express-validator');
 
 /** GET clients listing. */
 router.get('/', async (req, res) => {
@@ -48,7 +48,7 @@ router.post('/balance', [
 router.post('/recharge', [
   body('phone').exists(),
   body('document').exists(),
-  body('value').exists().isFloat({min:10}).withMessage('valor de recarga es minimo 1')
+  body('value').exists().isFloat({min:1}).withMessage('valor de recarga es minimo 1')
 ],async (req, res, next) => {
   const errors = validationResult(req)
 
@@ -61,6 +61,26 @@ router.post('/recharge', [
   }
 
   ClientController.recharge(req.body, res);
+});
+
+/* Pay */
+router.post('/:id/pay', [
+  body('value').exists().isFloat({min:1}).withMessage('valor de recarga es minimo 1'),
+  check('id').isMongoId()
+],async (req, res, next) => {
+  const errors = validationResult(req)
+
+  const { id } = req.params;
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ 
+      success: false,
+      message: "Unprocessable Entity",
+      errors: errors.array() 
+    });
+  }
+
+  ClientController.pay(id, req.body, res);
 });
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const { response } = require('../app');
 const Client = require('../models/client');
+const MailService = require('../services/MailService');
 
 class ClientController {
   async get(res) {
@@ -11,7 +12,6 @@ class ClientController {
   }
 
   async getClient(req, res) {
-    console.log(req);
     const client = await Client.findOne(
       {
         document: req.document,
@@ -47,6 +47,31 @@ class ClientController {
       client.balance += req.value;
       client.save();
       res.status(200).json(this.notification(true, 'Client update', client, undefined));
+    } else {
+      res.status(404).json(this.notification(false, 'Client not found', client, undefined));
+    }
+  }
+
+  async pay(id, req, res) {
+    const client = await Client.findById(id).exec();
+    if(client){
+      if(client.balance > req.value){
+        var token = Math.random().toString(36).substring(2,8) 
+        client.pays.push({
+          date:  new Date(),
+          value: req.value,
+          token: token,
+          processed: false
+        });
+        client.save();
+
+        var mail = new MailService(client.email, token);
+        mail.send();
+
+        res.status(200).json(this.notification(true, 'Payment in process, an email has been sent with the session id that must be used in the purchase confirmation', client, undefined));
+      } else {
+        res.status(200).json(this.notification(true, 'payment not processed, you do not have enough balance for this payment', client, undefined));
+      }
     } else {
       res.status(404).json(this.notification(false, 'Client not found', client, undefined));
     }

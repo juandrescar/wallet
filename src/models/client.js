@@ -7,6 +7,7 @@ const ClientSchema = Schema({
   email: {type: String, default: null, required: false},
   phone: {type: String, default: null, required: false},
   balance: {type: Number, default: 0.00, required: false},
+  pays: {type: Array, default: [], required: false},
   created_at: {type: Date, default: Date.now},
   updated_at: {type: Date, default: Date.now},
 });
