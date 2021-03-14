@@ -5,9 +5,8 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-const userRoutes = require('./users')
-//const slackRoutes = require('./slack')
+const clientRoutes = require('./clients')
 
-router.use('/users', userRoutes)
+router.use('/clients', clientRoutes)
 
 module.exports = router;
