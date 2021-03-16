@@ -1,0 +1,9 @@
+{
+    "name": "Wallet",
+    "version": "1.0.0",
+    "description": "Documentation of Wallet api",
+    "apidoc": {
+      "title": "Wallet Api doc",
+      "url" : "http://localhost/9000"
+    }
+}

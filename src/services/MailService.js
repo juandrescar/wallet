@@ -4,9 +4,11 @@ dotenv.config();
 
 class MailService {
 
-  constructor(email, token) {
+  constructor(id, pay, email, token) {
+    this.id = id;
+    this.pay = pay;
     this.email = email;
-    this.token = token
+    this.token = token;
 
     var nodemailer = require('nodemailer');
 
@@ -31,11 +33,12 @@ class MailService {
   }
 
   getMessage() {
+    var link = '<a href="'+ process.env.URL_WEB + 'confirm?id=' + this.id + '&pay=' + this.pay + '">Confirm your payment</a>'
     return {
       from: process.env.EMAIL_SUPPORT,
       to: this.email,
       subject: 'Payment in process',
-      text: 'To finish processing your payment, enter the following link and enter the following code: ' + this.token
+      text: 'To finish processing your payment, enter the following link '+ link +' and enter the following code: ' + this.token
     };
   }
 }

@@ -46,9 +46,9 @@ router.post('/balance', [
 
 /* Recharge balance */
 router.post('/recharge', [
+  body('value').exists().isFloat({min:1}).withMessage('valor de recarga es minimo 1'),
   body('phone').exists(),
   body('document').exists(),
-  body('value').exists().isFloat({min:1}).withMessage('valor de recarga es minimo 1')
 ],async (req, res, next) => {
   const errors = validationResult(req)
 
@@ -64,13 +64,12 @@ router.post('/recharge', [
 });
 
 /* Pay */
-router.post('/:id/pay', [
-  body('value').exists().isFloat({min:1}).withMessage('valor de recarga es minimo 1'),
-  check('id').isMongoId()
-],async (req, res, next) => {
+router.post('/pay', [
+    body('phone').exists(),
+    body('document').exists(),
+    body('value').exists().isFloat({min:1}).withMessage('valor a pagar es minimo 1'),
+  ],async (req, res, next) => {
   const errors = validationResult(req)
-
-  const { id } = req.params;
 
   if (!errors.isEmpty()) {
     return res.status(422).json({ 
@@ -80,7 +79,28 @@ router.post('/:id/pay', [
     });
   }
 
-  ClientController.pay(id, req.body, res);
+  ClientController.pay(req.body, res);
+});
+
+/* Confirm pay */
+router.post('/:id/pays/:pay', [
+    body('code').exists().isString(),
+    check('id').isMongoId(),
+    check('pay').isMongoId()
+  ],async (req, res, next) => {
+  const errors = validationResult(req)
+
+  const { id, pay } = req.params;
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ 
+      success: false,
+      message: "Unprocessable Entity",
+      errors: errors.array() 
+    });
+  }
+
+  ClientController.confirm(id, pay, req.body, res);
 });
 
 module.exports = router;
