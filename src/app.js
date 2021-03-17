@@ -13,7 +13,7 @@ var app = express();
 
 
 //conect to db
-mongoose.connect('mongodb://localhost:27017/wallet', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(`mongodb://${process.env.BD_HOST}:${process.env.BD_PORT}/${process.env.BD_NAME}`, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(db => console.log('db connected'))
   .catch(err => console.log(err));
 
