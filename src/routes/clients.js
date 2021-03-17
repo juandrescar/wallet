@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const ClientController = require('../controllers/ClientController');
 const { check, body, validationResult } = require('express-validator');
+const Client = require('../models/client');
 
 /** GET clients listing. */
 router.get('/', async (req, res) => {
@@ -10,9 +11,17 @@ router.get('/', async (req, res) => {
 /* Register client. */
 router.post('/', [
     body('email').isEmail().normalizeEmail(),
-    body('name').exists().isAlpha(),
+    body('name').exists().matches(/^[A-Za-z ]+$/),
     body('phone').exists(),
-    body('document').exists()
+    body('document').exists().custom(inDocument => {
+      return Client.find({
+        document: inDocument
+      }).then(client => {
+        if (client.length > 0) {
+          return Promise.reject('This document was registered');
+        }
+      });
+  }),
   ],async (req, res, next) => {
     const errors = validationResult(req)
 
@@ -67,7 +76,7 @@ router.post('/recharge', [
 router.post('/pay', [
     body('phone').exists(),
     body('document').exists(),
-    body('value').exists().isFloat({min:1}).withMessage('valor a pagar es minimo 1'),
+    body('value').exists().isFloat({min:1}).withMessage('valor a pagar debe ser un número y mínimo 1'),
   ],async (req, res, next) => {
   const errors = validationResult(req)
 
@@ -84,7 +93,7 @@ router.post('/pay', [
 
 /* Confirm pay */
 router.post('/:id/pays/:pay', [
-    body('code').exists().isString(),
+    body('code').exists().isString().isLength({ min: 6, max:6 }).withMessage('code debe tener 6 caracteres'),
     check('id').isMongoId(),
     check('pay').isMongoId()
   ],async (req, res, next) => {
